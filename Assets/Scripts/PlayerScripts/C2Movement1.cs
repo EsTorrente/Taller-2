@@ -6,13 +6,22 @@ public class C2Movement : MonoBehaviour
 {
     [SerializeField] private float speed;
     [SerializeField] private float jumpPower;
+    [SerializeField] private float wallSlideSpeed;
+
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask wallLayer;
+
     private Rigidbody2D body;
     private Animator anim;
     private BoxCollider2D boxCollider;
     private float wallJumpCooldown;
     private float horizontalInput;
+
+    private Health health;
+
+    // PLATAFORMITAS
+    private Transform currentPlatform;
+    private Vector3 previousPlatformPosition;
 
     private void Awake()
     {
@@ -20,10 +29,18 @@ public class C2Movement : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         boxCollider = GetComponent<BoxCollider2D>();
+        health = FindObjectOfType<Health>();
     }
 
     private void Update()
     {
+        // deshabilitar controles
+        //if (Health.Dead)
+        //{
+        //body.velocity = Vector2.zero;
+        // return;
+        //}
+
         //MOVIMIENTO HORIZONTAL
         horizontalInput = Input.GetAxis("Horizontal");
 
@@ -36,6 +53,7 @@ public class C2Movement : MonoBehaviour
         //PERÍMETROS DE ANIMACIÓN
         anim.SetBool("Run", horizontalInput != 0);
         anim.SetBool("Grounded", isGrounded());
+        anim.SetBool("Wall", onWall() && !isGrounded());
 
         //logica de wall jump
         if (wallJumpCooldown > 0.2f)
@@ -45,7 +63,14 @@ public class C2Movement : MonoBehaviour
             if (onWall() && !isGrounded())
             {
                 body.gravityScale = 0;
-                body.velocity = Vector2.zero;
+                if (horizontalInput == 0)
+                {
+                    body.velocity = new Vector2(0, -wallSlideSpeed);
+                }
+                else
+                {
+                    body.velocity = Vector2.zero;
+                }
             }
             else
                 body.gravityScale = 3;
@@ -56,6 +81,7 @@ public class C2Movement : MonoBehaviour
         else
             wallJumpCooldown += Time.deltaTime;
     }
+
 
     private void Jump()
     {
@@ -80,6 +106,7 @@ public class C2Movement : MonoBehaviour
 
     public bool canAttack()
     {
-        return !onWall();
+        return !onWall(); // && !Health.Dead;
     }
+
 }

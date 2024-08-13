@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: 18e76eecca43fc04ab2f3e5ee140d75b
+labels:
+- Sprite
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
